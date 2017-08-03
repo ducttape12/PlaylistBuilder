@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfStation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Station>
+    <Name>Chillstep</Name>
+    <Url>http://prem1.di.fm:80/chillstep?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Disco House</Name>
+    <Url>http://prem1.di.fm:80/discohouse?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Epic Trance</Name>
+    <Url>http://prem4.di.fm:80/epictrance?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Future Bass</Name>
+    <Url>http://prem4.di.fm:80/futurebass?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Future Garage</Name>
+    <Url>http://prem1.di.fm:80/futuregarage?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Liquid DnB</Name>
+    <Url>http://prem1.di.fm:80/liquiddnb?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Melodic Progressive</Name>
+    <Url>http://prem4.di.fm:80/melodicprogressive?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Smooth Jazz 24/7</Name>
+    <Url>http://prem4.jazzradio.com:80/smoothjazz247_aac?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>Vocal Trance</Name>
+    <Url>http://prem1.di.fm:80/vocaltrance?415ea6749d4228b673dbc127</Url>
+  </Station>
+  <Station>
+    <Name>WUWM</Name>
+    <Url>https://wuwm.streamguys1.com/live.mp3</Url>
+  </Station>
+</ArrayOfStation>
