@@ -39,7 +39,7 @@ samplestations.xml is a sample XML file that can be read by PlaylistBuilder.  Yo
 ```
 
 # More info
-Make you to check out [www.keithott.com](www.keithott.com) for more awesomeness!
+Check out [www.keithott.com](www.keithott.com) for more awesomeness!
 
 # License
 
