@@ -15,7 +15,7 @@ namespace PlaylistBuilder
 
         private static string HelpMessage => new StringBuilder()
                 .AppendLine("Builds a PLS playlist file from the stations specified in the given StationsXmlFile.xml")
-                .AppendLine("usage: playlistbuilder [OPTIONS] StationsXmlFile.xml [PlaylistOutputFilename]")
+                .AppendLine("usage: [OPTIONS] StationsXmlFile.xml [PlaylistOutputFilename]")
                 .AppendLine("")
                 .AppendLine($"  {HelpArgument}                     Display this help message")
                 .AppendLine($"  {string.Join(", ", AlphabetizeArguments)}          Alphabetize stations by name before saving them to the playlist")
