@@ -19,7 +19,26 @@ From a command-prompt, navigate to the directory where you extracted either the 
 For example, on Windows 10 you may run the application as `PlaylistBuilder -a samplestations.xml`
 
 # Stations.xml
-samplestations.xml is a sample XML file that can be read by PlaylistBuilder.  Your file should follow a similar structure.
+samplestations.xml is a sample XML file that can be read by PlaylistBuilder.  Your file should follow a similar structure.  It looks as follows:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfStation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Station>
+    <Name>Radio Hunter - The Hitz Channel</Name>
+    <Url>http://listen.shoutcast.com:80/RadioHunter-TheHitzChannel</Url>
+  </Station>
+  <Station>
+    <Name>SmoothJazz.com</Name>
+    <Url>http://144.217.153.67:80/live</Url>
+  </Station>
+  <Station>
+    <Name>Calm Radio - Solo Piano</Name>
+    <Url>http://184.173.142.117:30228/stream</Url>
+  </Station>
+  <!-- ... --->
+</ArrayOfStation>
+```
 
 # More info
 Make you to check out [www.keithott.com](www.keithott.com) for more awesomeness!
