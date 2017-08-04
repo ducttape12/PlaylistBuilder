@@ -40,6 +40,7 @@ namespace PlaylistBuilder
                 Console.WriteLine("StationsXmlFile.xml and PlaylistOutputFilename cannot be equal");
                 Console.WriteLine();
                 DisplayHelp();
+                return;
             }
 
             var stations = LoadStations(stationFileName).ToList();
