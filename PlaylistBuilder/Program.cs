@@ -10,75 +10,113 @@ namespace PlaylistBuilder
     public class Program
     {
         private const string HelpArgument = "--help";
+        private const string DefaultPlaylistOutputFileName = "Playlist.pls";
         private static readonly string[] AlphabetizeArguments = { "--alphabetize", "--a" };
+
+        private static string HelpMessage => new StringBuilder()
+                .AppendLine("Builds a PLS playlist file from the stations specified in the given StationsXmlFile.xml")
+                .AppendLine("usage: playlistbuilder [OPTIONS] StationsXmlFile.xml [PlaylistOutputFilename]")
+                .AppendLine("")
+                .AppendLine($"  {HelpArgument}                    Display this help message")
+                .AppendLine("  --alphabetize, -a         Alphabetize stations by name before saving them to the playlist")
+                .AppendLine("  StationsXmlFile           Path to the XML file containing stations for the playlist")
+                .AppendLine("  PlaylistOutputFilename    Optionally where the playlist should go. If omitted will be written to Playlist.pls").ToString();
 
         public static void Main(string[] args)
         {
-            if(args.Any(arg => arg.Equals(HelpArgument, StringComparison.OrdinalIgnoreCase)))
+            var (message, alphabetize, sourceFilename, destinationFilename) = ProcessArguments(args);
+            if(!string.IsNullOrWhiteSpace(message))
             {
-                DisplayHelp();
+                Console.WriteLine(message);
                 return;
             }
 
-            var alphabetizePlaylist = args.Any(arg =>
+            var (loadError, stations) = LoadStations(sourceFilename);
+            if(!string.IsNullOrWhiteSpace(loadError))
+            {
+                Console.WriteLine(loadError);
+                return;
+            }
+            var stationsList = stations.ToList();
+
+            if (alphabetize)
+                stationsList.Sort((station1, station2) => string.CompareOrdinal(station1.ToString(), station2.ToString()));
+
+            var playlist = BuildPlaylist(stations);
+            
+            File.WriteAllText(destinationFilename, playlist.ToString());
+            Console.WriteLine($"Playlist written to {destinationFilename}");
+        }
+
+        private static (string displayMessage, bool alphabetize, string sourceFilename, string destinationFilename) ProcessArguments(IEnumerable<string> args)
+        {
+            var arguments = args.ToList();
+            if (!arguments.Any() || arguments.Any(arg => arg.Equals(HelpArgument, StringComparison.OrdinalIgnoreCase)))
+            {
+                return (HelpMessage, false, null, null);
+            }
+
+            var alphabetizePlaylist = arguments.Any(arg =>
                 AlphabetizeArguments.Any(alphabetizeArgument => alphabetizeArgument.Equals(arg, StringComparison.OrdinalIgnoreCase)));
 
-            var stationFileName = args.FirstOrDefault(arg => !arg.StartsWith("--"));
-            var playlistOutput = args.LastOrDefault(arg => !arg.StartsWith("--"));
+            var sourceFilename = arguments.FirstOrDefault(arg => !arg.StartsWith("--"));
+            var outputFilename = arguments.LastOrDefault(arg => !arg.StartsWith("--"));
 
-            if(string.IsNullOrWhiteSpace(stationFileName))
+            bool stationFilenameMissing = string.IsNullOrWhiteSpace(sourceFilename);
+            if (stationFilenameMissing)
             {
-                Console.WriteLine("StationsXmlFile.xml not specified!");
-                Console.WriteLine();
-                DisplayHelp();
-                return;
+                return ($"StationsXmlFile.xml not specified!{Environment.NewLine}{HelpMessage}", false, null, null);
             }
 
-            if(stationFileName.Equals(playlistOutput, StringComparison.OrdinalIgnoreCase) &&
-                args.Count(arg => arg.Equals(stationFileName, StringComparison.OrdinalIgnoreCase)) == 1)
+            bool playlistOutputFilenameMayBeOmitted = sourceFilename.Equals(outputFilename, StringComparison.OrdinalIgnoreCase);
+            bool singleFilenameInArgs = arguments.Count(arg => arg.Equals(sourceFilename, StringComparison.OrdinalIgnoreCase)) == 1;
+
+            if (playlistOutputFilenameMayBeOmitted)
             {
-                Console.WriteLine("StationsXmlFile.xml and PlaylistOutputFilename cannot be equal");
-                Console.WriteLine();
-                DisplayHelp();
-                return;
+                if (singleFilenameInArgs)
+                {
+                    return ($"StationsXmlFile.xml and PlaylistOutputFilename cannot be equal{Environment.NewLine}{HelpMessage}", false, null, null);
+                }
+                else
+                {
+                    sourceFilename = DefaultPlaylistOutputFileName;
+                }
             }
 
-            var stations = LoadStations(stationFileName).ToList();
-            stations.Sort((station1, station2) => string.CompareOrdinal(station1.ToString(), station2.ToString()));
+            return (null, alphabetizePlaylist, sourceFilename, outputFilename);
+        }
+
+        private static StringBuilder BuildPlaylist(IEnumerable<Station> stations)
+        {
+            var stationsList = stations.ToList();
 
             var playlist = new StringBuilder()
-                .AppendLine("[playlist]")
-                .AppendLine($"NumberOfEntries={stations.Count}");
-            for (var index = 0; index < stations.Count; index++)
+                            .AppendLine("[playlist]")
+                            .AppendLine($"NumberOfEntries={stationsList.Count}");
+            for (var index = 0; index < stationsList.Count; index++)
             {
-                var station = stations[index];
+                var station = stationsList[index];
                 playlist.AppendLine($"File{index + 1}={station.Url}");
                 playlist.AppendLine($"Title{index + 1}={station.Name}");
                 playlist.AppendLine($"Length{index + 1}=-1");
             }
             playlist.AppendLine("Version=2");
-
-            var playlistFileName = args.Length > 2 ? args.Last() : "Playlist.pls";
-            File.WriteAllText(playlistFileName, playlist.ToString());
+            return playlist;
         }
 
-        private static void DisplayHelp()
-        {
-            Console.WriteLine("Builds a PLS playlist file from the stations specified in the given StationsXmlFile.xml");
-            Console.WriteLine("usage: playlistbuilder [OPTIONS] StationsXmlFile.xml [PlaylistOutputFilename]");
-            Console.WriteLine("");
-            Console.WriteLine($"  {HelpArgument}                    Display this help message");
-            Console.WriteLine("  --alphabetize, -a         Alphabetize stations by name before saving them to the playlist");
-            Console.WriteLine("  StationsXmlFile           Path to the XML file containing stations for the playlist");
-            Console.WriteLine("  PlaylistOutputFilename    Optionally where the playlist should go. If omitted will be written to Playlist.pls");
-        }
-
-        private static IEnumerable<Station> LoadStations(string stationFileName)
+        private static (string error, IEnumerable<Station> stations) LoadStations(string stationFileName)
         {
             var xmlDeserializer = new XmlSerializer(typeof(List<Station>));
-            using (var reader = File.OpenRead(stationFileName))
+            try
             {
-                return (List<Station>)xmlDeserializer.Deserialize(reader);
+                using (var reader = File.OpenRead(stationFileName))
+                {
+                    return (null, (List<Station>)xmlDeserializer.Deserialize(reader));
+                }
+            }
+            catch(InvalidOperationException ex)
+            {
+                return ("Unable to load stations from XML file.  Error:" + Environment.NewLine + ex.ToString(), null);
             }
         }
     }

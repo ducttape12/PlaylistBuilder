@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfStation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Station>
+    <Name>SmoothJazz.com</Name>
+    <Url>http://144.217.153.67:80/live</Url>
+  </Station>
+  <Station>
+    <Name>Bassdrive - Worldwide Drum and Bass Radio</Name>
+    <Url>http://144.217.129.213:8702/stream</Url>
+  </Station>
+  <Station>
+    <Name>Radio Hunter - The Hitz Channel</Name>
+    <Url>http://listen.shoutcast.com:80/RadioHunter-TheHitzChannel</Url>
+  </Station>
+</ArrayOfStation>
