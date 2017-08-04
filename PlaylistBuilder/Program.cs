@@ -9,43 +9,62 @@ namespace PlaylistBuilder
 {
     public class Program
     {
-        private const string HelpArgument = "--help";
+        private const string HelpArgument = "-help";
         private const string DefaultPlaylistOutputFileName = "Playlist.pls";
-        private static readonly string[] AlphabetizeArguments = { "--alphabetize", "--a" };
+        private static readonly string[] AlphabetizeArguments = { "-alphabetize", "-a" };
 
         private static string HelpMessage => new StringBuilder()
                 .AppendLine("Builds a PLS playlist file from the stations specified in the given StationsXmlFile.xml")
                 .AppendLine("usage: playlistbuilder [OPTIONS] StationsXmlFile.xml [PlaylistOutputFilename]")
                 .AppendLine("")
-                .AppendLine($"  {HelpArgument}                    Display this help message")
-                .AppendLine("  --alphabetize, -a         Alphabetize stations by name before saving them to the playlist")
+                .AppendLine($"  {HelpArgument}                     Display this help message")
+                .AppendLine($"  {string.Join(", ", AlphabetizeArguments)}          Alphabetize stations by name before saving them to the playlist")
                 .AppendLine("  StationsXmlFile           Path to the XML file containing stations for the playlist")
                 .AppendLine("  PlaylistOutputFilename    Optionally where the playlist should go. If omitted will be written to Playlist.pls").ToString();
 
         public static void Main(string[] args)
         {
             var (message, alphabetize, sourceFilename, destinationFilename) = ProcessArguments(args);
-            if(!string.IsNullOrWhiteSpace(message))
+            if (!string.IsNullOrWhiteSpace(message))
             {
                 Console.WriteLine(message);
                 return;
             }
 
-            var (loadError, stations) = LoadStations(sourceFilename);
-            if(!string.IsNullOrWhiteSpace(loadError))
+            var (stationsLoadError, stations) = LoadStations(sourceFilename);
+            if (!string.IsNullOrWhiteSpace(stationsLoadError))
             {
-                Console.WriteLine(loadError);
+                Console.WriteLine(stationsLoadError);
                 return;
             }
             var stationsList = stations.ToList();
 
             if (alphabetize)
-                stationsList.Sort((station1, station2) => string.CompareOrdinal(station1.ToString(), station2.ToString()));
+                stationsList.Sort((station1, station2) => string.CompareOrdinal(station1.Name, station2.Name));
 
-            var playlist = BuildPlaylist(stations);
-            
-            File.WriteAllText(destinationFilename, playlist.ToString());
-            Console.WriteLine($"Playlist written to {destinationFilename}");
+            var playlist = BuildPlaylist(stationsList);
+
+            var fileWriteError = WriteFile(destinationFilename, playlist);
+            if(string.IsNullOrWhiteSpace(fileWriteError))
+            {
+                Console.WriteLine($"Playlist written to {destinationFilename}");
+            } else
+            {
+                Console.WriteLine(fileWriteError);
+            }
+        }
+
+        private static string WriteFile(string destinationFilename, StringBuilder playlist)
+        {
+            try
+            {
+                File.WriteAllText(destinationFilename, playlist.ToString());
+                return null;
+            }
+            catch(IOException ex)
+            {
+                return $"Unable to write to playlist.  Error:{Environment.NewLine}{ex.Message}";
+            }
         }
 
         private static (string displayMessage, bool alphabetize, string sourceFilename, string destinationFilename) ProcessArguments(IEnumerable<string> args)
@@ -59,13 +78,13 @@ namespace PlaylistBuilder
             var alphabetizePlaylist = arguments.Any(arg =>
                 AlphabetizeArguments.Any(alphabetizeArgument => alphabetizeArgument.Equals(arg, StringComparison.OrdinalIgnoreCase)));
 
-            var sourceFilename = arguments.FirstOrDefault(arg => !arg.StartsWith("--"));
-            var outputFilename = arguments.LastOrDefault(arg => !arg.StartsWith("--"));
+            var sourceFilename = arguments.FirstOrDefault(arg => !arg.StartsWith("-"));
+            var outputFilename = arguments.LastOrDefault(arg => !arg.StartsWith("-"));
 
             bool stationFilenameMissing = string.IsNullOrWhiteSpace(sourceFilename);
             if (stationFilenameMissing)
             {
-                return ($"StationsXmlFile.xml not specified!{Environment.NewLine}{HelpMessage}", false, null, null);
+                return ($"StationsXmlFile.xml is missing{Environment.NewLine}{HelpMessage}", false, null, null);
             }
 
             bool playlistOutputFilenameMayBeOmitted = sourceFilename.Equals(outputFilename, StringComparison.OrdinalIgnoreCase);
@@ -75,11 +94,11 @@ namespace PlaylistBuilder
             {
                 if (singleFilenameInArgs)
                 {
-                    return ($"StationsXmlFile.xml and PlaylistOutputFilename cannot be equal{Environment.NewLine}{HelpMessage}", false, null, null);
+                    outputFilename = DefaultPlaylistOutputFileName;
                 }
                 else
                 {
-                    sourceFilename = DefaultPlaylistOutputFileName;
+                    return ($"StationsXmlFile.xml and PlaylistOutputFilename cannot be equal{Environment.NewLine}{HelpMessage}", false, null, null);
                 }
             }
 
@@ -116,7 +135,11 @@ namespace PlaylistBuilder
             }
             catch(InvalidOperationException ex)
             {
-                return ("Unable to load stations from XML file.  Error:" + Environment.NewLine + ex.ToString(), null);
+                return ($"Error in XML stations file.  Error:{Environment.NewLine}{ex.Message}", null);
+            }
+            catch(IOException ex)
+            {
+                return ($"Unable to load stations from XML file.  Error:{Environment.NewLine}{ex.Message}", null);
             }
         }
     }

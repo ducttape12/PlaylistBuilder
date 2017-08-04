@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PlaylistBuilder": {
+      "commandName": "Project",
+      "commandLineArgs": "-a samplestations.xml"
+    }
+  }
+}
