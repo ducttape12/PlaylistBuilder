@@ -38,6 +38,10 @@ samplestations.xml is a sample XML file that can be read by PlaylistBuilder.  Yo
 </ArrayOfStation>
 ```
 
+# Building
+
+To build a release, run build.bat.  A zip file will be created in PlaylistBuilder\bin\Release\ with the current timestamp.
+
 # More info
 Check out [www.keithott.com](www.keithott.com) for more awesomeness!
 
