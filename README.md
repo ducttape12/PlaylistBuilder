@@ -2,7 +2,7 @@
 Have a jumbled playlist of your favorite internet radio stations? PlaylistBuilder takes a collection of internet radio stations in an XML file and outputs them into a PLS playlist file, optionally alphabetizing them.
 
 # Downloading
-The latest release can be found on the [Releases](https://github.com/ducttape12/PlaylistBuilder/releases) page.  A pre-built binary has been made for Windows 10 x64.  For any other platform (Linux, Mac OS), you'll need to download .NET Core 1.1 SDK.  Instructions for running the app is below.
+The latest release can be found on the [Releases](https://github.com/ducttape12/PlaylistBuilder/releases) page.  A pre-built binary has been made for Windows 10 x64.  For any other platform (Linux, Mac OS), you'll need to download .NET Core 2.0 SDK.  Instructions for running the app is below.
 
 # Usage
 From a command-prompt, navigate to the directory where you extracted either the prebuilt binary or executable.  If you're using the prebuilt binary, run `PlaylistBuilder.exe`; if you're running from source, run the application with `dotnet run`.  Preceeding the run command, use the following flags:
